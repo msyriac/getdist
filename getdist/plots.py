@@ -1545,7 +1545,7 @@ class GetDistPlotter(_BaseObject):
         ax = self.get_axes(ax)
         ax.set_zlabel(param.latexLabel(), fontsize=self._scaled_fontsize(self.settings.axes_labelsize), **kwargs)
 
-    def plot_1d(self, roots, param, marker=None, marker_color=None, label_right=False, title_limit=None,
+    def plot_1d(self, roots, param, marker=None, marker_color=None, label=None, label_right=False, title_limit=None,
                 no_ylabel=False, no_ytick=False, no_zero=False, normalized=False, param_renames=None, ax=None,
                 **kwargs):
         """
@@ -1565,6 +1565,7 @@ class GetDistPlotter(_BaseObject):
         :param param_renames: optional dictionary mapping input parameter names to equivalent names used by the samples
         :param ax: optional :class:`~matplotlib:matplotlib.axes.Axes` instance (or y,x subplot coordinate)
                    to add to (defaults to current plot or the first/main plot if none)
+        :param label: If not None, overrides the default y-axis label with this string
         :param kwargs: additional optional keyword arguments:
 
                 * **lims**: optional limits for x range of the plot [xmin, xmax]
@@ -1626,23 +1627,23 @@ class GetDistPlotter(_BaseObject):
         self.set_axes([plotparam], ax=ax, **kwargs)
 
         if normalized:
-            lab = self.settings.norm_prob_label
+            lab = self.settings.norm_prob_label if not(label) else label
         else:
-            lab = self.settings.prob_label
+            lab = self.settings.prob_label if not(label) else label
         if lab and not no_ylabel:
             if label_right:
                 ax.yaxis.set_label_position("right")
                 ax.yaxis.tick_right()
             ax.set_ylabel(lab, fontsize=self._scaled_fontsize(self.settings.axes_labelsize))
-        if no_ytick or not self.settings.prob_y_ticks:
-            ax.tick_params(left=False, labelleft=False)
-        elif no_ylabel:
-            self._no_y_ticklabels(ax)
-        elif no_zero and not normalized:
-            ticks = ax.get_yticks()
-            if ticks[-1] > 1:
-                ticks = ticks[:-1]
-            ax.set_yticks(ticks[1:])
+        # if no_ytick or not self.settings.prob_y_ticks:
+        #     ax.tick_params(left=False, labelleft=False)
+        # elif no_ylabel:
+        #     self._no_y_ticklabels(ax)
+        # elif no_zero and not normalized:
+        #     ticks = ax.get_yticks()
+        #     if ticks[-1] > 1:
+        #         ticks = ticks[:-1]
+        #     ax.set_yticks(ticks[1:])
         if _ret_range:
             return xmin, xmax
         elif not _no_finish and len(self.fig.axes) == 1:
