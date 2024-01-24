@@ -1102,12 +1102,13 @@ class GetDistPlotter(_BaseObject):
                 else:
                     cols = color
             levels = sorted(np.append([density.P.max() + 1], contour_levels))
-            cs = ax.contourf(density.x, density.y, density.P, levels, colors=cols, alpha=alpha, **clean_args(kwargs))
+            cs = ax.contourf(density.x, density.y, density.P, levels, linestyles=linestyles,
+                             colors=cols, alpha=alpha, **clean_args(kwargs))
             if proxy_ix >= 0:
                 self.contours_added[proxy_ix] = (
                     matplotlib.patches.Rectangle((0, 0), 1, 1, fc=matplotlib.colors.to_rgb(cs.tcolors[-1][0])))
             if lws is None: lws = self._scaled_linewidth(self.settings.linewidth_contour)
-            ax.contour(density.x, density.y, density.P, levels[:1], colors=cs.tcolors[-1], linestyles=linestyles,
+            ax.contour(density.x, density.y, density.P, levels, colors=cs.tcolors[-1], linestyles=linestyles,
                        linewidths=lws,
                        alpha=alpha * self.settings.alpha_factor_contour_lines, **clean_args(kwargs))
         else:
@@ -1550,7 +1551,7 @@ class GetDistPlotter(_BaseObject):
         ax.set_zlabel(param.latexLabel(), fontsize=self._scaled_fontsize(self.settings.axes_labelsize), **kwargs)
 
     def plot_1d(self, roots, param, marker=None, marker_color=None, label_right=False, title_limit=None,
-                no_ylabel=False, no_ytick=False, no_zero=False, normalized=False, param_renames=None, ax=None,
+                no_ylabel=False, no_ytick=False, no_zero=False, normalized=False, param_renames=None, ax=None,label=None,
                 **kwargs):
         """
         Make a single 1D plot with marginalized density lines.
@@ -1633,20 +1634,22 @@ class GetDistPlotter(_BaseObject):
             lab = self.settings.norm_prob_label
         else:
             lab = self.settings.prob_label
+        lab = label
+        ax.set_ylim(0,14)
         if lab and not no_ylabel:
             if label_right:
                 ax.yaxis.set_label_position("right")
                 ax.yaxis.tick_right()
             ax.set_ylabel(lab, fontsize=self._scaled_fontsize(self.settings.axes_labelsize))
-        if no_ytick or not self.settings.prob_y_ticks:
-            ax.tick_params(left=False, labelleft=False)
-        elif no_ylabel:
-            self._no_y_ticklabels(ax)
-        elif no_zero and not normalized:
-            ticks = ax.get_yticks()
-            if ticks[-1] > 1:
-                ticks = ticks[:-1]
-            ax.set_yticks(ticks[1:])
+        # if no_ytick or not self.settings.prob_y_ticks:
+        #     ax.tick_params(left=False, labelleft=False)
+        # elif no_ylabel:
+        #     self._no_y_ticklabels(ax)
+        # elif no_zero and not normalized:
+        #     ticks = ax.get_yticks()
+        #     if ticks[-1] > 1:
+        #         ticks = ticks[:-1]
+        #     ax.set_yticks(ticks[1:])
         if _ret_range:
             return xmin, xmax
         elif not _no_finish and len(self.fig.axes) == 1:
